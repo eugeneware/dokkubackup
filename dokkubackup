@@ -1,0 +1,17 @@
+#!/bin/bash
+echo "Starting Backups..."
+for i in /home/git/*; do
+  if [ -f $i/CONTAINER ] && [ -f $i/nginx.conf ]; then
+    echo "Processing dokkup app: $i"
+    CONTAINER=$(< $i/CONTAINER)
+    echo "Removing last backup..."
+    rm -rf /backups/$CONTAINER.tar.gz
+    echo "Exporting docker container..."
+    docker export $CONTAINER | gzip -c > /backups/$CONTAINER.tar.gz
+    echo "Copying backup to Amazon S3..."
+    s3cmd put /backups/$CONTAINER.tar.gz s3://$1
+    echo "Copying to S3 complete"
+    echo
+  fi
+done
+echo "Backups Complete!"
