@@ -1,5 +1,12 @@
 #!/bin/bash
 echo "Starting Backups..."
+echo "Backup up ~git"
+tar cvzf /backups/git.tar.gz /home/git
+echo "Copying ~git backup to S3..."
+s3cmd put /backups/git.tar.gz s3://$1
+exit
+s3cmd put /backups/git.tar.bz s3://$1
+echo "Backup up docker container images"
 for i in /home/git/*; do
   if [ -f $i/CONTAINER ] && [ -f $i/nginx.conf ]; then
     echo "Processing dokkup app: $i"
